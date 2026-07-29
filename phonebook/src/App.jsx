@@ -1,4 +1,7 @@
 import { useState } from "react";
+import Filter from "./components/Filter";
+import PersonForm from "./components/PersonForm";
+import Persons from "./components/Persons";
 
 const App = () => {
   const [persons, setPersons] = useState([
@@ -25,7 +28,10 @@ const App = () => {
       return;
     }
 
-    setPersons([...persons, { name: newName, number: newNumber }]);
+    setPersons([
+      ...persons,
+      { name: newName, number: newNumber, id: persons.length + 1 },
+    ]);
     setNewName("");
     setNewNumber("");
   };
@@ -44,33 +50,21 @@ const App = () => {
 
   return (
     <div>
-      <h2>Phonebook</h2>
-      filter shown with
-      <input value={filterString} onChange={handleFilterStringChange} />
+      <h1>Phonebook</h1>
+      <Filter
+        filterString={filterString}
+        onFilterStringChange={handleFilterStringChange}
+      />
       <h2>Add a new</h2>
-      <form onSubmit={addPerson}>
-        <div>
-          name: <input value={newName} onChange={handleNameChange} />
-        </div>
-        <div>
-          number: <input value={newNumber} onChange={handleNumberChange} />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
+      <PersonForm
+        onSubmit={addPerson}
+        newName={newName}
+        newNumber={newNumber}
+        onNameChange={handleNameChange}
+        onNumberChange={handleNumberChange}
+      />
       <h2>Numbers</h2>
-      <ul>
-        {persons
-          .filter((person) =>
-            person.name.toLowerCase().includes(filterString.toLowerCase()),
-          )
-          .map((person) => (
-            <li key={person.id}>
-              {person.name} {person.number}
-            </li>
-          ))}
-      </ul>
+      <Persons persons={persons} filterString={filterString} />
     </div>
   );
 };
