@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
+import personService from "./services/persons";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -12,8 +12,8 @@ const App = () => {
   const [filterString, setFilterString] = useState("");
 
   useEffect(() => {
-    axios.get("http://localhost:3001/persons").then((response) => {
-      setPersons(response.data);
+    personService.getAll().then((initialPersons) => {
+      setPersons(initialPersons);
     });
   }, []);
 
@@ -30,12 +30,16 @@ const App = () => {
       return;
     }
 
-    setPersons([
-      ...persons,
-      { name: newName, number: newNumber, id: persons.length + 1 },
-    ]);
-    setNewName("");
-    setNewNumber("");
+    const newPerson = {
+      name: newName,
+      number: newNumber,
+    };
+
+    personService.create(newPerson).then((returnedPerson) => {
+      setPersons([...persons, returnedPerson]);
+      setNewName("");
+      setNewNumber("");
+    });
   };
 
   const handleNameChange = (event) => {
@@ -48,6 +52,18 @@ const App = () => {
 
   const handleFilterStringChange = (event) => {
     setFilterString(event.target.value);
+  };
+
+  const handleDeleteClick = (id) => {
+    if (
+      window.confirm(
+        `Delete ${persons.find((person) => person.id === id).name} ?`,
+      )
+    ) {
+      personService.remove(id).then((returnedPerson) => {
+        setPersons(persons.filter((person) => person.id !== returnedPerson.id));
+      });
+    }
   };
 
   return (
@@ -66,7 +82,11 @@ const App = () => {
         onNumberChange={handleNumberChange}
       />
       <h2>Numbers</h2>
-      <Persons persons={persons} filterString={filterString} />
+      <Persons
+        persons={persons}
+        filterString={filterString}
+        onDeleteClick={handleDeleteClick}
+      />
     </div>
   );
 };

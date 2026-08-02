@@ -1,4 +1,4 @@
-const Persons = ({ persons, filterString }) => {
+const Persons = ({ persons, filterString, onDeleteClick }) => {
   return (
     <div>
       <ul>
@@ -9,6 +9,7 @@ const Persons = ({ persons, filterString }) => {
           .map((person) => (
             <li key={person.id}>
               {person.name} {person.number}
+              <button onClick={() => onDeleteClick(person.id)}>Delete</button>
             </li>
           ))}
       </ul>
