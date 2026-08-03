@@ -20,13 +20,32 @@ const App = () => {
   const addPerson = (event) => {
     event.preventDefault();
 
-    if (persons.some((person) => newName === person.name)) {
-      alert(`${newName} is already added to phonebook`);
-      return;
-    }
+    if (
+      persons.some(
+        (person) => newName.toLowerCase() === person.name.toLowerCase(),
+      )
+    ) {
+      if (
+        window.confirm(
+          `${newName} is already added to phonebook, replace the old number with a new one?`,
+        )
+      ) {
+        const updatedPerson = persons.find(
+          (person) => newName.toLowerCase() === person.name.toLowerCase(),
+        );
 
-    if (persons.some((person) => newNumber === person.number)) {
-      alert(`${newNumber} is already added to phonebook`);
+        personService
+          .update(updatedPerson.id, { ...updatedPerson, number: newNumber })
+          .then((returnedPerson) => {
+            setPersons(
+              persons.map((person) =>
+                person.id === updatedPerson.id ? returnedPerson : person,
+              ),
+            );
+            setNewName("");
+            setNewNumber("");
+          });
+      }
       return;
     }
 
