@@ -3,6 +3,7 @@ import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
 import personService from "./services/persons";
+import Notification from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -10,6 +11,7 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [filterString, setFilterString] = useState("");
+  const [notificationMessage, setNotificationMessage] = useState(null);
 
   useEffect(() => {
     personService.getAll().then((initialPersons) => {
@@ -44,6 +46,27 @@ const App = () => {
             );
             setNewName("");
             setNewNumber("");
+            setNotificationMessage({
+              text: `Updated ${returnedPerson.name}`,
+              isError: false,
+            });
+            setTimeout(() => {
+              setNotificationMessage(null);
+            }, 5000);
+          })
+          .catch((error) => {
+            setPersons(
+              persons.filter((person) => person.id !== updatedPerson.id),
+            );
+            setNewName("");
+            setNewNumber("");
+            setNotificationMessage({
+              text: `Information of ${updatedPerson.name} has already been removed from the server`,
+              isError: true,
+            });
+            setTimeout(() => {
+              setNotificationMessage(null);
+            }, 5000);
           });
       }
       return;
@@ -58,6 +81,13 @@ const App = () => {
       setPersons([...persons, returnedPerson]);
       setNewName("");
       setNewNumber("");
+      setNotificationMessage({
+        text: `Added ${returnedPerson.name}`,
+        isError: false,
+      });
+      setTimeout(() => {
+        setNotificationMessage(null);
+      }, 5000);
     });
   };
 
@@ -88,6 +118,7 @@ const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
+      <Notification message={notificationMessage} />
       <Filter
         filterString={filterString}
         onFilterStringChange={handleFilterStringChange}
